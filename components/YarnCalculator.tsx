@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { Scissors, Weight, Ruler, Layers, Trash2, Plus, Calculator, CheckCircle2, Info } from 'lucide-react';
 
 interface YarnInput {
   id: number;
@@ -60,9 +61,12 @@ export default function YarnCalculator() {
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 dark:from-gray-900 dark:to-gray-800 p-4 md:p-8">
       <div className="max-w-4xl mx-auto">
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-6 md:p-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-center mb-2 text-purple-900 dark:text-purple-300">
-            Калькулятор пряжи
-          </h1>
+          <div className="flex items-center justify-center gap-3 mb-2">
+            <Scissors className="w-8 h-8 md:w-10 md:h-10 text-purple-600 dark:text-purple-400" />
+            <h1 className="text-3xl md:text-4xl font-bold text-center text-purple-900 dark:text-purple-300">
+              Калькулятор пряжи
+            </h1>
+          </div>
           <p className="text-center text-gray-600 dark:text-gray-400 mb-8">
             Расчет метража при сложении нескольких нитей
           </p>
@@ -80,16 +84,18 @@ export default function YarnCalculator() {
                   {yarns.length > 1 && (
                     <button
                       onClick={() => removeYarn(yarn.id)}
-                      className="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 font-bold text-xl px-3 py-1 rounded hover:bg-red-100 dark:hover:bg-red-900/30 transition"
+                      className="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 p-2 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 transition"
+                      aria-label="Удалить пряжу"
                     >
-                      ✕
+                      <Trash2 className="w-5 h-5" />
                     </button>
                   )}
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      <Weight className="w-4 h-4" />
                       Вес (грамм)
                     </label>
                     <input
@@ -103,7 +109,8 @@ export default function YarnCalculator() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      <Ruler className="w-4 h-4" />
                       Длина (метров)
                     </label>
                     <input
@@ -117,7 +124,8 @@ export default function YarnCalculator() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      <Layers className="w-4 h-4" />
                       Количество нитей
                     </label>
                     <input
@@ -139,25 +147,30 @@ export default function YarnCalculator() {
 
             <button
               onClick={addYarn}
-              className="w-full py-3 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-lg border-2 border-dashed border-purple-300 dark:border-purple-600 hover:bg-purple-200 dark:hover:bg-purple-800/30 transition font-medium"
+              className="w-full py-3 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-lg border-2 border-dashed border-purple-300 dark:border-purple-600 hover:bg-purple-200 dark:hover:bg-purple-800/30 transition font-medium flex items-center justify-center gap-2"
             >
-              + Добавить пряжу
+              <Plus className="w-5 h-5" />
+              Добавить пряжу
             </button>
 
             <div className="flex flex-col sm:flex-row gap-4 pt-4">
               <button
                 onClick={calculateTotalMeterage}
-                className="flex-1 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition font-bold text-lg shadow-lg hover:shadow-xl transform hover:scale-105"
+                className="flex-1 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition font-bold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center justify-center gap-2"
               >
+                <Calculator className="w-6 h-6" />
                 Рассчитать
               </button>
             </div>
 
             {result !== null && (
               <div className="mt-6 p-6 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-2 border-green-300 dark:border-green-700 rounded-xl">
-                <h2 className="text-2xl font-bold text-green-800 dark:text-green-300 mb-3">
-                  Результат
-                </h2>
+                <div className="flex items-center gap-2 mb-3">
+                  <CheckCircle2 className="w-7 h-7 text-green-600 dark:text-green-400" />
+                  <h2 className="text-2xl font-bold text-green-800 dark:text-green-300">
+                    Результат
+                  </h2>
+                </div>
                 <div className="space-y-2 text-gray-700 dark:text-gray-300">
                   <p>
                     <span className="font-semibold">Всего нитей:</span> {getTotalStrands()} шт
@@ -170,9 +183,12 @@ export default function YarnCalculator() {
             )}
 
             <div className="mt-8 p-6 bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-200 dark:border-blue-700 rounded-xl">
-              <h3 className="font-semibold text-blue-900 dark:text-blue-300 mb-2">
-                Как это работает?
-              </h3>
+              <div className="flex items-center gap-2 mb-2">
+                <Info className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                <h3 className="font-semibold text-blue-900 dark:text-blue-300">
+                  Как это работает?
+                </h3>
+              </div>
               <p className="text-sm text-gray-700 dark:text-gray-300">
                 При сложении нескольких нитей пряжи вместе, итоговый метраж рассчитывается по формуле:
                 <br />
