@@ -5,9 +5,9 @@ import { Scissors, Weight, Ruler, Layers, Trash2, Plus, CheckCircle2, Info, Aler
 
 interface YarnInput {
   id: number;
-  weight: number;
-  length: number;
-  strands: number;
+  weight: string;
+  length: string;
+  strands: string;
 }
 
 interface ValidationErrors {
@@ -20,15 +20,15 @@ interface ValidationErrors {
 
 export default function YarnCalculator() {
   const [yarns, setYarns] = useState<YarnInput[]>([
-    { id: 1, weight: 100, length: 700, strands: 2 },
-    { id: 2, weight: 25, length: 120, strands: 1 },
+    { id: 1, weight: '100', length: '700', strands: '2' },
+    { id: 2, weight: '25', length: '120', strands: '1' },
   ]);
   const [result, setResult] = useState<number | null>(null);
   const [errors, setErrors] = useState<ValidationErrors>({});
 
   const addYarn = () => {
     const newId = Math.max(...yarns.map(y => y.id), 0) + 1;
-    setYarns([...yarns, { id: newId, weight: 100, length: 0, strands: 1 }]);
+    setYarns([...yarns, { id: newId, weight: '100', length: '', strands: '1' }]);
   };
 
   const removeYarn = (id: number) => {
@@ -37,7 +37,7 @@ export default function YarnCalculator() {
     }
   };
 
-  const updateYarn = (id: number, field: keyof YarnInput, value: number) => {
+  const updateYarn = (id: number, field: keyof YarnInput, value: string) => {
     setYarns(yarns.map(y =>
       y.id === id ? { ...y, [field]: value } : y
     ));
@@ -46,15 +46,19 @@ export default function YarnCalculator() {
   const validateYarn = (yarn: YarnInput): { weight?: string; length?: string; strands?: string } => {
     const fieldErrors: { weight?: string; length?: string; strands?: string } = {};
 
-    if (yarn.weight <= 0) {
+    const weight = parseFloat(yarn.weight);
+    const length = parseFloat(yarn.length);
+    const strands = parseInt(yarn.strands);
+
+    if (!yarn.weight || isNaN(weight) || weight <= 0) {
       fieldErrors.weight = 'Вес должен быть больше 0';
     }
 
-    if (yarn.length < 0) {
+    if (!yarn.length || isNaN(length) || length < 0) {
       fieldErrors.length = 'Длина не может быть отрицательной';
     }
 
-    if (yarn.strands < 1) {
+    if (!yarn.strands || isNaN(strands) || strands < 1) {
       fieldErrors.strands = 'Должна быть минимум 1 нить';
     }
 
@@ -82,11 +86,15 @@ export default function YarnCalculator() {
     let reciprocalSum = 0;
 
     for (const yarn of yarns) {
+      const weight = parseFloat(yarn.weight);
+      const length = parseFloat(yarn.length);
+      const strands = parseInt(yarn.strands);
+
       // Метраж одной нити на 100г
-      const meteragePerStrand = (yarn.length / yarn.weight) * 100;
+      const meteragePerStrand = (length / weight) * 100;
 
       // Добавляем столько раз, сколько нитей
-      for (let i = 0; i < yarn.strands; i++) {
+      for (let i = 0; i < strands; i++) {
         reciprocalSum += 1 / meteragePerStrand;
       }
     }
@@ -97,7 +105,7 @@ export default function YarnCalculator() {
   };
 
   const getTotalStrands = () => {
-    return yarns.reduce((sum, yarn) => sum + yarn.strands, 0);
+    return yarns.reduce((sum, yarn) => sum + (parseInt(yarn.strands) || 0), 0);
   };
 
   // Автоматический расчет при изменении данных
@@ -148,88 +156,94 @@ export default function YarnCalculator() {
                   )}
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3 md:gap-4">
-                  <div>
-                    <label className="flex items-center gap-1.5 text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                <div className="space-y-2 sm:space-y-2.5">
+                  <div className="flex items-center gap-2">
+                    <label className="flex items-center gap-1.5 text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 w-24 sm:w-28 flex-shrink-0">
                       <Weight className="w-3 h-3 sm:w-4 sm:h-4" />
                       Вес (г)
                     </label>
-                    <input
-                      type="number"
-                      value={yarn.weight}
-                      onChange={(e) => updateYarn(yarn.id, 'weight', parseFloat(e.target.value) || 0)}
-                      placeholder="например, 100"
-                      className={`w-full px-2 py-1.5 sm:px-3 sm:py-2 text-sm border-2 rounded-lg focus:ring-2 dark:bg-gray-700 dark:text-white ${
-                        errors[yarn.id]?.weight
-                          ? 'border-red-500 focus:ring-red-500 focus:border-red-500'
-                          : 'border-purple-300 dark:border-purple-600 focus:ring-purple-500 dark:focus:ring-purple-400 focus:border-transparent'
-                      }`}
-                      min="0"
-                      step="0.1"
-                    />
-                    {errors[yarn.id]?.weight && (
-                      <div className="flex items-center gap-1 mt-1 text-xs text-red-600 dark:text-red-400">
-                        <AlertCircle className="w-3 h-3" />
-                        {errors[yarn.id].weight}
-                      </div>
-                    )}
+                    <div className="flex-1">
+                      <input
+                        type="number"
+                        value={yarn.weight}
+                        onChange={(e) => updateYarn(yarn.id, 'weight', e.target.value)}
+                        placeholder="100"
+                        className={`w-full px-2 py-1.5 sm:px-3 sm:py-2 text-sm border-2 rounded-lg focus:ring-2 dark:bg-gray-700 dark:text-white ${
+                          errors[yarn.id]?.weight
+                            ? 'border-red-500 focus:ring-red-500 focus:border-red-500'
+                            : 'border-purple-300 dark:border-purple-600 focus:ring-purple-500 dark:focus:ring-purple-400 focus:border-transparent'
+                        }`}
+                        min="0"
+                        step="0.1"
+                      />
+                      {errors[yarn.id]?.weight && (
+                        <div className="flex items-center gap-1 mt-1 text-xs text-red-600 dark:text-red-400">
+                          <AlertCircle className="w-3 h-3" />
+                          {errors[yarn.id].weight}
+                        </div>
+                      )}
+                    </div>
                   </div>
 
-                  <div>
-                    <label className="flex items-center gap-1.5 text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                  <div className="flex items-center gap-2">
+                    <label className="flex items-center gap-1.5 text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 w-24 sm:w-28 flex-shrink-0">
                       <Ruler className="w-3 h-3 sm:w-4 sm:h-4" />
                       Длина (м)
                     </label>
-                    <input
-                      type="number"
-                      value={yarn.length}
-                      onChange={(e) => updateYarn(yarn.id, 'length', parseFloat(e.target.value) || 0)}
-                      placeholder="например, 700"
-                      className={`w-full px-2 py-1.5 sm:px-3 sm:py-2 text-sm border-2 rounded-lg focus:ring-2 dark:bg-gray-700 dark:text-white ${
-                        errors[yarn.id]?.length
-                          ? 'border-red-500 focus:ring-red-500 focus:border-red-500'
-                          : 'border-purple-300 dark:border-purple-600 focus:ring-purple-500 dark:focus:ring-purple-400 focus:border-transparent'
-                      }`}
-                      min="0"
-                      step="0.1"
-                    />
-                    {errors[yarn.id]?.length && (
-                      <div className="flex items-center gap-1 mt-1 text-xs text-red-600 dark:text-red-400">
-                        <AlertCircle className="w-3 h-3" />
-                        {errors[yarn.id].length}
-                      </div>
-                    )}
+                    <div className="flex-1">
+                      <input
+                        type="number"
+                        value={yarn.length}
+                        onChange={(e) => updateYarn(yarn.id, 'length', e.target.value)}
+                        placeholder="700"
+                        className={`w-full px-2 py-1.5 sm:px-3 sm:py-2 text-sm border-2 rounded-lg focus:ring-2 dark:bg-gray-700 dark:text-white ${
+                          errors[yarn.id]?.length
+                            ? 'border-red-500 focus:ring-red-500 focus:border-red-500'
+                            : 'border-purple-300 dark:border-purple-600 focus:ring-purple-500 dark:focus:ring-purple-400 focus:border-transparent'
+                        }`}
+                        min="0"
+                        step="0.1"
+                      />
+                      {errors[yarn.id]?.length && (
+                        <div className="flex items-center gap-1 mt-1 text-xs text-red-600 dark:text-red-400">
+                          <AlertCircle className="w-3 h-3" />
+                          {errors[yarn.id].length}
+                        </div>
+                      )}
+                    </div>
                   </div>
 
-                  <div>
-                    <label className="flex items-center gap-1.5 text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                  <div className="flex items-center gap-2">
+                    <label className="flex items-center gap-1.5 text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 w-24 sm:w-28 flex-shrink-0">
                       <Layers className="w-3 h-3 sm:w-4 sm:h-4" />
                       Нитей
                     </label>
-                    <input
-                      type="number"
-                      value={yarn.strands}
-                      onChange={(e) => updateYarn(yarn.id, 'strands', parseInt(e.target.value) || 1)}
-                      placeholder="например, 2"
-                      className={`w-full px-2 py-1.5 sm:px-3 sm:py-2 text-sm border-2 rounded-lg focus:ring-2 dark:bg-gray-700 dark:text-white ${
-                        errors[yarn.id]?.strands
-                          ? 'border-red-500 focus:ring-red-500 focus:border-red-500'
-                          : 'border-purple-300 dark:border-purple-600 focus:ring-purple-500 dark:focus:ring-purple-400 focus:border-transparent'
-                      }`}
-                      min="1"
-                      step="1"
-                    />
-                    {errors[yarn.id]?.strands && (
-                      <div className="flex items-center gap-1 mt-1 text-xs text-red-600 dark:text-red-400">
-                        <AlertCircle className="w-3 h-3" />
-                        {errors[yarn.id].strands}
-                      </div>
-                    )}
+                    <div className="flex-1">
+                      <input
+                        type="number"
+                        value={yarn.strands}
+                        onChange={(e) => updateYarn(yarn.id, 'strands', e.target.value)}
+                        placeholder="2"
+                        className={`w-full px-2 py-1.5 sm:px-3 sm:py-2 text-sm border-2 rounded-lg focus:ring-2 dark:bg-gray-700 dark:text-white ${
+                          errors[yarn.id]?.strands
+                            ? 'border-red-500 focus:ring-red-500 focus:border-red-500'
+                            : 'border-purple-300 dark:border-purple-600 focus:ring-purple-500 dark:focus:ring-purple-400 focus:border-transparent'
+                        }`}
+                        min="1"
+                        step="1"
+                      />
+                      {errors[yarn.id]?.strands && (
+                        <div className="flex items-center gap-1 mt-1 text-xs text-red-600 dark:text-red-400">
+                          <AlertCircle className="w-3 h-3" />
+                          {errors[yarn.id].strands}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
 
                 <div className="mt-2 text-xs sm:text-sm text-gray-600 dark:text-gray-400">
-                  Метраж на 100г: {yarn.weight > 0 ? ((yarn.length / yarn.weight) * 100).toFixed(2) : 0} м
+                  Метраж на 100г: {parseFloat(yarn.weight) > 0 ? ((parseFloat(yarn.length) / parseFloat(yarn.weight)) * 100).toFixed(2) : 0} м
                 </div>
               </div>
             ))}
